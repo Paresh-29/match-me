@@ -1,10 +1,13 @@
 "use client";
+import { signInUser } from "@/app/actions/authActions";
 import { loginSchema, LoginSchema } from "@/lib/schemas/LoginSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Card, CardBody, CardHeader, Input } from "@nextui-org/react";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { GiPadlock } from "react-icons/gi";
+import { toast } from "react-toastify";
 
 export default function LoginForm() {
   const {
@@ -15,7 +18,18 @@ export default function LoginForm() {
     resolver: zodResolver(loginSchema),
     mode: "onTouched",
   });
-  const onSubmit = (data: LoginSchema) => console.log(data);
+
+  const router = useRouter();
+
+  const onSubmit = async (data: LoginSchema) => {
+    const result = await signInUser(data);
+    if (result.status === "success") {
+      router.push("/members");
+      router.refresh();
+    } else {
+      toast.error(result.error as string);
+    }
+  };
 
   return (
     <div className="h-screen flex items-center justify-center">
